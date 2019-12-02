@@ -15,43 +15,50 @@ using Microsoft.Extensions.Logging;
 
 namespace DatingApp.API
 {
-    public class Startup
+  public class Startup
+  {
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddDbContext<DataContext>(x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddControllers();
-            services.AddCors();
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            // app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
+      Configuration = configuration;
     }
+
+    public IConfiguration Configuration { get; }
+
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+      // Configuration.GetConnectionString not working properly 
+      services.AddDbContext<DataContext>(x => x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+
+      //services.AddDbContext<DataContext>(x => x.UseSqlite("Data Source=datingapp.db"));
+      services.AddControllers();
+      services.AddCors();
+      services.AddScoped<IAuthRepository, AuthRepository>();
+    }
+
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+      if (env.IsDevelopment())
+      {
+        app.UseDeveloperExceptionPage();
+      }
+
+      // app.UseHttpsRedirection();
+
+      app.UseRouting();
+
+      app.UseAuthorization();
+
+      app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
+      app.UseDefaultFiles();
+      app.UseStaticFiles();
+
+      app.UseEndpoints(endpoints =>
+      {
+        endpoints.MapControllers();
+      });
+    }
+  }
 }
